@@ -1,0 +1,26 @@
+[info]
+title=R Helper
+desc=(to write)
+type=cudatext-plugin
+subdir=cuda_r_helper
+homepage=(to write)
+
+[item1]
+section=events
+events=on_exit
+
+[item2]
+section=commands
+caption=R Helper\Open console
+method=open_console
+
+[item10]
+section=commands
+caption=R Helper\Config
+method=config
+menu=o
+
+[bottombar1]
+hint=R Console
+icon={dir}/r_console.png
+method=open_console
