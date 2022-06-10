@@ -11,6 +11,11 @@ events=on_exit
 
 [item2]
 section=commands
+caption=R Plugin\Open side panel
+method=open_side_panel
+
+[item5]
+section=commands
 caption=R Plugin\Open console
 method=open_console
 
@@ -20,7 +25,12 @@ caption=R Plugin\Config
 method=config
 menu=o
 
+[sidebar1]
+hint=R Objects
+icon={dir}/r_icon.png
+method=open_side_panel
+
 [bottombar1]
 hint=R Console
-icon={dir}/r_console.png
+icon={dir}/r_icon.png
 method=open_console

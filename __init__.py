@@ -9,7 +9,7 @@ import cudatext_keys as keys
 import cudatext_cmd as cmds
 from cudatext import *
 
-fn_icon = os.path.join(os.path.dirname(__file__), 'r_console.png')
+fn_icon = os.path.join(os.path.dirname(__file__), 'r_icon.png')
 fn_config = os.path.join(app_path(APP_DIR_SETTINGS), 'cuda_r_helper.ini')
 MAX_BUFFER = 100*1000
 IS_WIN = os.name=='nt'
@@ -25,8 +25,10 @@ def str_to_bool(s):
     return s=='1'
 
 class Command:
-    title = 'R Console'
-    h_dlg = None
+    title_side = 'R Objects'
+    title_console = 'R Console'
+    h_side = None
+    h_console = None
 
     def __init__(self):
 
@@ -93,26 +95,60 @@ class Command:
             ini_write(fn_config, 'history', str(i), s)
 
 
-    def open_init(self):
+    def init_forms(self):
 
-        self.h_dlg = self.init_form()
-        h_embed = self.h_dlg
+        self.h_side = self.init_side_form()
+        self.h_console = self.init_console_form()
 
-        app_proc(PROC_BOTTOMPANEL_ADD_DIALOG, (self.title, h_embed, fn_icon))
+        app_proc(PROC_SIDEPANEL_ADD_DIALOG, (self.title_side, self.h_side, fn_icon))
+        app_proc(PROC_BOTTOMPANEL_ADD_DIALOG, (self.title_console, self.h_console, fn_icon))
 
+
+    def open_side_panel(self):
+
+        #dont init form twice!
+        if not self.h_side:
+            self.init_forms()
+
+        dlg_proc(self.h_side, DLG_CTL_FOCUS, name='list')
+
+        app_proc(PROC_SIDEPANEL_ACTIVATE, (self.title_side, True)) #True - set focus
 
     def open_console(self):
 
         #dont init form twice!
-        if not self.h_dlg:
-            self.open_init()
+        if not self.h_console:
+            self.init_forms()
 
-        dlg_proc(self.h_dlg, DLG_CTL_FOCUS, name='input')
+        dlg_proc(self.h_console, DLG_CTL_FOCUS, name='input')
 
-        app_proc(PROC_BOTTOMPANEL_ACTIVATE, (self.title, True)) #True - set focus
+        app_proc(PROC_BOTTOMPANEL_ACTIVATE, (self.title_console, True)) #True - set focus
 
 
-    def init_form(self):
+    def init_side_form(self):
+
+        h=dlg_proc(0, DLG_CREATE)
+        dlg_proc(h, DLG_PROP_SET, prop={
+            #'on_key_down': 'cuda_testing_dlg_proc.callback_tempdlg_on_key_down',
+            })
+
+        n=dlg_proc(h, DLG_CTL_ADD, 'listbox_ex')
+        dlg_proc(h, DLG_CTL_PROP_SET, index=n, prop={
+            'name': 'list',
+            'align': ALIGN_CLIENT,
+            'on_click_dbl': self.callback_list_dblclick,
+            })
+        self.h_list = dlg_proc(h, DLG_CTL_HANDLE, index=n)
+
+        listbox_proc(self.h_list, LISTBOX_THEME)
+        
+        for i in range(5):
+            listbox_proc(self.h_list, LISTBOX_ADD, index=-1, text='Item %d'%i)
+        
+        return h
+
+        
+    def init_console_form(self):
 
         colors = app_proc(PROC_THEME_UI_DICT_GET,'')
         color_btn_back = colors['ButtonBgPassive']['color']
@@ -269,9 +305,9 @@ class Command:
                 command=self.menu_calls[index],
                 )
 
-        prop = dlg_proc(self.h_dlg, DLG_CTL_PROP_GET, name='input')
+        prop = dlg_proc(self.h_console, DLG_CTL_PROP_GET, name='input')
         x, y = prop['x'], prop['y']
-        x, y = dlg_proc(self.h_dlg, DLG_COORD_LOCAL_TO_SCREEN, index=x, index2=y)
+        x, y = dlg_proc(self.h_console, DLG_COORD_LOCAL_TO_SCREEN, index=x, index2=y)
         menu_proc(self.h_menu, MENU_SHOW, command=(x, y))
 
 
@@ -336,3 +372,14 @@ class Command:
 
         pass
 
+
+    def callback_list_dblclick(self, id_dlg, id_ctl, data='', info=''):
+
+        if ed.get_prop(PROP_RO):
+            return
+
+        index = listbox_proc(self.h_list, LISTBOX_GET_SEL)
+        if index<0:
+            return
+
+        ed.cmd(cmds.cCommand_TextInsert, 'Inserted item %d...'%index)
