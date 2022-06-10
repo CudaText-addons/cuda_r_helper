@@ -244,6 +244,7 @@ class Command:
 
         ini_write(fn_config, 'op', 'max_history', str(self.max_history))
         ini_write(fn_config, 'op', 'font_size', str(self.font_size))
+        ini_write(fn_config, 'op', 'dark_colors', bool_to_str(self.dark_colors))
 
         file_open(fn_config)
 
