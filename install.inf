@@ -1,8 +1,8 @@
 [info]
-title=R Helper
+title=R Plugin
 desc=(to write)
 type=cudatext-plugin
-subdir=cuda_r_helper
+subdir=cuda_r_plugin
 homepage=(to write)
 
 [item1]
@@ -11,12 +11,12 @@ events=on_exit
 
 [item2]
 section=commands
-caption=R Helper\Open console
+caption=R Plugin\Open console
 method=open_console
 
 [item10]
 section=commands
-caption=R Helper\Config
+caption=R Plugin\Config
 method=config
 menu=o
 
