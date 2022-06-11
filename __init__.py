@@ -48,7 +48,7 @@ class Command:
         except:
             pass
 
-        self.dark_colors = str_to_bool(ini_read(fn_config, 'op', 'dark_colors', '1'))
+        #self.dark_colors = str_to_bool(ini_read(fn_config, 'op', 'dark_colors', '1'))
         self.show_toolbar_small = str_to_bool(ini_read(fn_config, 'op', 'show_toolbar_small', '1'))
         
         self.h_menu = menu_proc(0, MENU_CREATE)
@@ -226,8 +226,10 @@ class Command:
         color_btn_back = colors['ButtonBgPassive']['color']
         color_btn_font = colors['ButtonFont']['color']
 
-        color_memo_back = 0x0 if self.dark_colors else color_btn_back
-        color_memo_font = 0xC0C0C0 if self.dark_colors else color_btn_font
+        #color_memo_back = 0x0 if self.dark_colors else color_btn_back
+        #color_memo_font = 0xC0C0C0 if self.dark_colors else color_btn_font
+        color_memo_back = color_btn_back
+        color_memo_font = color_btn_font
 
         cur_font_size = self.font_size
 
@@ -316,7 +318,7 @@ class Command:
 
         ini_write(fn_config, 'op', 'max_history', str(self.max_history))
         ini_write(fn_config, 'op', 'font_size', str(self.font_size))
-        ini_write(fn_config, 'op', 'dark_colors', bool_to_str(self.dark_colors))
+        #ini_write(fn_config, 'op', 'dark_colors', bool_to_str(self.dark_colors))
         ini_write(fn_config, 'op', 'show_toolbar_small', bool_to_str(self.show_toolbar_small))
 
         file_open(fn_config)
