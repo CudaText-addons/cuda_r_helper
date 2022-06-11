@@ -149,8 +149,8 @@ class Command:
             } )
 
         self.h_toolbar_small = dlg_proc(h, DLG_CTL_HANDLE, index=n)
-        self.toolbar_small_imglist = toolbar_proc(self.h_toolbar_small, TOOLBAR_GET_IMAGELIST)
-        self.set_imagelist_size(THEME_TOOLBAR_SMALL, self.toolbar_small_imglist)
+        self.h_imglist_small = toolbar_proc(self.h_toolbar_small, TOOLBAR_GET_IMAGELIST)
+        self.set_imagelist_size(THEME_TOOLBAR_SMALL, self.h_imglist_small)
         
         n=dlg_proc(h, DLG_CTL_ADD, 'listbox_ex')
         dlg_proc(h, DLG_CTL_PROP_SET, index=n, prop={
@@ -168,8 +168,8 @@ class Command:
         
         # fill toolbar
         dirname = os.path.join(os.path.dirname(__file__), THEME_TOOLBAR_SMALL)
-        icon_open = imagelist_proc(self.toolbar_small_imglist, IMAGELIST_ADD, value = os.path.join(dirname, 'open.png'))
-        icon_save = imagelist_proc(self.toolbar_small_imglist, IMAGELIST_ADD, value = os.path.join(dirname, 'save.png'))
+        icon_open = imagelist_proc(self.h_imglist_small, IMAGELIST_ADD, value = os.path.join(dirname, 'open.png'))
+        icon_save = imagelist_proc(self.h_imglist_small, IMAGELIST_ADD, value = os.path.join(dirname, 'save.png'))
 
         toolbar_proc(self.h_toolbar_small, TOOLBAR_THEME)
         self.toolbar_add_btn(self.h_toolbar_small, hint=_('Open project'), icon=icon_open, command='cuda_r_plugin.action_open_project' )
