@@ -1,6 +1,7 @@
 import sys
 import datetime
 import os
+import re
 from time import sleep
 from subprocess import Popen, PIPE, STDOUT
 from threading import Thread, Lock
@@ -8,6 +9,9 @@ from threading import Thread, Lock
 import cudatext_keys as keys
 import cudatext_cmd as cmds
 from cudatext import *
+
+from cudax_lib import get_translation
+_ = get_translation(__file__)  # i18n
 
 fn_icon = os.path.join(os.path.dirname(__file__), 'r_icon.png')
 fn_config = os.path.join(app_path(APP_DIR_SETTINGS), 'cuda_r_helper.ini')
@@ -132,6 +136,19 @@ class Command:
             #'on_key_down': 'cuda_testing_dlg_proc.callback_tempdlg_on_key_down',
             })
 
+        n = dlg_proc(h, DLG_CTL_ADD, 'toolbar')
+        dlg_proc(h, DLG_CTL_PROP_SET, index=n, prop={
+            'name': 'bar',
+            'align': ALIGN_TOP,
+            'vis': True,
+            'h': 24,
+            'autosize': True,
+            } )
+
+        self.h_toolbar_small = dlg_proc(h, DLG_CTL_HANDLE, index=n)
+        self.toolbar_small_imglist = toolbar_proc(self.h_toolbar_small, TOOLBAR_GET_IMAGELIST)
+        self.set_imagelist_size('main_16x16', self.toolbar_small_imglist)
+        
         n=dlg_proc(h, DLG_CTL_ADD, 'listbox_ex')
         dlg_proc(h, DLG_CTL_PROP_SET, index=n, prop={
             'name': 'list',
@@ -141,9 +158,22 @@ class Command:
         self.h_list = dlg_proc(h, DLG_CTL_HANDLE, index=n)
 
         listbox_proc(self.h_list, LISTBOX_THEME)
-        
+
+        # fill listbox        
         for i in range(5):
             listbox_proc(self.h_list, LISTBOX_ADD, index=-1, text='Item %d'%i)
+        
+        # fill toolbar
+        dirname = os.path.dirname(__file__)
+        icon_open = imagelist_proc(self.toolbar_small_imglist, IMAGELIST_ADD, value = os.path.join(dirname, 'bar_small_open.png'))
+        icon_save = imagelist_proc(self.toolbar_small_imglist, IMAGELIST_ADD, value = os.path.join(dirname, 'bar_small_save.png'))
+
+        toolbar_proc(self.h_toolbar_small, TOOLBAR_THEME)
+        self.toolbar_add_btn(self.h_toolbar_small, hint=_('Open project'), icon=icon_open, command='cuda_r_plugin.action_open_project' )
+        self.toolbar_add_btn(self.h_toolbar_small, hint='-' )
+        self.toolbar_add_btn(self.h_toolbar_small, hint=_('Save project as'), icon=icon_save, command='cuda_r_plugin.action_save_project_as' )
+        toolbar_proc(self.h_toolbar_small, TOOLBAR_SET_WRAP, index=True)
+        toolbar_proc(self.h_toolbar_small, TOOLBAR_UPDATE)
         
         return h
 
@@ -384,3 +414,39 @@ class Command:
             return
 
         ed.cmd(cmds.cCommand_TextInsert, 'Inserted item %d...'%index)
+
+
+    def set_imagelist_size(self, theme_name, imglist):
+
+        res = re.match('^\S+x(\d+)$', theme_name)
+        if not res:
+            return msg_box(_('R Plugin: bad icons folder name: "%s"') % theme_name, MB_OK+MB_ICONERROR)
+        n = int(res.group(1))
+        if not 8<=n<=64:
+            return msg_box(_('R Plugin: bad icons size: "%s"') % theme_name, MB_OK+MB_ICONERROR)
+
+        imagelist_proc(imglist, IMAGELIST_SET_SIZE, (n, n))
+
+    
+    def toolbar_add_btn(self, h_bar, hint, icon=-1, command=''):
+
+        toolbar_proc(h_bar, TOOLBAR_ADD_ITEM)
+        cnt = toolbar_proc(h_bar, TOOLBAR_GET_COUNT)
+        h_btn = toolbar_proc(h_bar, TOOLBAR_GET_BUTTON_HANDLE, index=cnt-1)
+        if hint=='-':
+            button_proc(h_btn, BTN_SET_KIND, BTNKIND_SEP_HORZ)
+        else:
+            button_proc(h_btn, BTN_SET_KIND, BTNKIND_ICON_ONLY)
+            button_proc(h_btn, BTN_SET_HINT, hint)
+            button_proc(h_btn, BTN_SET_IMAGEINDEX, icon)
+            button_proc(h_btn, BTN_SET_DATA1, command)
+    
+
+    def action_open_project(self, info=None):
+        
+        msg_box('Open Project action', MB_OK)
+
+
+    def action_save_project_as(self, info=None):
+        
+        msg_box('Save Project As action', MB_OK)
