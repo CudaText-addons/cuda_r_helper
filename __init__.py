@@ -22,7 +22,7 @@ READSIZE = 4*1024
 HOMEDIR = os.path.expanduser('~')
 INPUT_H = 26
 THEME_TOOLBAR_SMALL = 'toolbar_small_16x16'
-THEME_TOOLBAR_MAIN = 'toolbar_main_20x20'
+THEME_TOOLBAR_MAIN = 'toolbar_main_24x24'
 
 def bool_to_str(v):
     return '1' if v else '0'
@@ -105,8 +105,12 @@ class Command:
     def init_forms(self):
 
         self.h_side = self.init_side_form()
+        self.h_toolbar_dlg = self.init_toolbar_form()
         self.h_console = self.init_console_form()
 
+        dlg_proc(self.h_toolbar_dlg, DLG_DOCK, index=0, prop='T') # index=0 means main CudaText form
+        dlg_proc(self.h_toolbar_dlg, DLG_SHOW_NONMODAL)
+        
         app_proc(PROC_SIDEPANEL_ADD_DIALOG, (self.title_side, self.h_side, fn_icon))
         app_proc(PROC_BOTTOMPANEL_ADD_DIALOG, (self.title_console, self.h_console, fn_icon))
 
@@ -177,6 +181,41 @@ class Command:
         self.toolbar_add_btn(self.h_toolbar_small, hint=_('Save project as'), icon=icon_save, command='cuda_r_plugin.action_save_project_as' )
         toolbar_proc(self.h_toolbar_small, TOOLBAR_SET_WRAP, index=True)
         toolbar_proc(self.h_toolbar_small, TOOLBAR_UPDATE)
+        
+        return h
+
+        
+    def init_toolbar_form(self):
+
+        h=dlg_proc(0, DLG_CREATE)
+        dlg_proc(h, DLG_PROP_SET, prop={
+            'h': 28,
+            })
+
+        n = dlg_proc(h, DLG_CTL_ADD, 'toolbar')
+        dlg_proc(h, DLG_CTL_PROP_SET, index=n, prop={
+            'name': 'bar',
+            'align': ALIGN_TOP,
+            'vis': True,
+            'h': 24,
+            'autosize': True,
+            } )
+
+        self.h_toolbar_main = dlg_proc(h, DLG_CTL_HANDLE, index=n)
+        self.h_imglist_main = toolbar_proc(self.h_toolbar_main, TOOLBAR_GET_IMAGELIST)
+        self.set_imagelist_size(THEME_TOOLBAR_MAIN, self.h_imglist_main)
+        
+        # fill toolbar
+        dirname = os.path.join(os.path.dirname(__file__), THEME_TOOLBAR_MAIN)
+        icon_open = imagelist_proc(self.h_imglist_main, IMAGELIST_ADD, value = os.path.join(dirname, 'open.png'))
+        icon_save = imagelist_proc(self.h_imglist_main, IMAGELIST_ADD, value = os.path.join(dirname, 'save.png'))
+
+        toolbar_proc(self.h_toolbar_main, TOOLBAR_THEME)
+        self.toolbar_add_btn(self.h_toolbar_main, hint=_('Open project'), icon=icon_open, command='cuda_r_plugin.action_open_project' )
+        self.toolbar_add_btn(self.h_toolbar_main, hint='-' )
+        self.toolbar_add_btn(self.h_toolbar_main, hint=_('Save project as'), icon=icon_save, command='cuda_r_plugin.action_save_project_as' )
+        toolbar_proc(self.h_toolbar_main, TOOLBAR_SET_WRAP, index=True)
+        toolbar_proc(self.h_toolbar_main, TOOLBAR_UPDATE)
         
         return h
 
