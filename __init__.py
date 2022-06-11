@@ -47,6 +47,7 @@ class Command:
             pass
 
         self.dark_colors = str_to_bool(ini_read(fn_config, 'op', 'dark_colors', '1'))
+        self.show_toolbar_small = str_to_bool(ini_read(fn_config, 'op', 'show_toolbar_small', '1'))
         
         self.h_menu = menu_proc(0, MENU_CREATE)
 
@@ -140,7 +141,7 @@ class Command:
         dlg_proc(h, DLG_CTL_PROP_SET, index=n, prop={
             'name': 'bar',
             'align': ALIGN_TOP,
-            'vis': True,
+            'vis': self.show_toolbar_small,
             'h': 24,
             'autosize': True,
             } )
@@ -275,6 +276,7 @@ class Command:
         ini_write(fn_config, 'op', 'max_history', str(self.max_history))
         ini_write(fn_config, 'op', 'font_size', str(self.font_size))
         ini_write(fn_config, 'op', 'dark_colors', bool_to_str(self.dark_colors))
+        ini_write(fn_config, 'op', 'show_toolbar_small', bool_to_str(self.show_toolbar_small))
 
         file_open(fn_config)
 
